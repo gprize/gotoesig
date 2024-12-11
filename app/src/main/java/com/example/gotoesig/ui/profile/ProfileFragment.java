@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.gotoesig.databinding.FragmentProfileBinding;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,91 +21,72 @@ import com.google.firebase.firestore.FieldValue;
 
 import java.util.HashMap;
 import java.util.Map;
-
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
-    private FirebaseAuth auth;
-    private FirebaseFirestore firestore;
-
-    private EditText etFirstName, etLastName, etPhone, etCity, etEmail;
+    private ProfileViewModel profileViewModel;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
-        auth = FirebaseAuth.getInstance();
-        firestore = FirebaseFirestore.getInstance();
+        profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
 
-        // Initialisation des EditText pour permettre la modification
-        etFirstName = binding.etFirstName;
-        etLastName = binding.etLastName;
-        etPhone = binding.etPhone;
-        etCity = binding.etCity;
-        etEmail = binding.etEmail;
+        initUI();
+        observeViewModel();
 
-        // Affichage des informations de l'utilisateur
-        displayUserInfo();
-
-        // Enregistrer les nouvelles informations
-        binding.btnSave.setOnClickListener(v -> saveUserInfo());
+        binding.btnSave.setOnClickListener(v -> profileViewModel.saveUserInfo(
+                binding.etFirstName.getText().toString().trim(),
+                binding.etLastName.getText().toString().trim(),
+                binding.etPhone.getText().toString().trim(),
+                binding.etCity.getText().toString().trim()
+        ));
 
         return binding.getRoot();
     }
 
-    private void displayUserInfo() {
-        FirebaseUser user = auth.getCurrentUser();
+    private void initUI() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            // Affichage de l'email (l'utilisateur ne peut pas le modifier)
-            etEmail.setText(user.getEmail());
-
-            // Récupérer les autres informations de l'utilisateur depuis Firestore
-            DocumentReference userRef = firestore.collection("users").document(user.getUid());
-            userRef.get().addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
-                    String firstName = documentSnapshot.getString("name");
-                    String lastName = documentSnapshot.getString("surname");
-                    String phone = documentSnapshot.getString("phone");
-                    String city = documentSnapshot.getString("city");
-
-                    // Affichage des informations récupérées dans les champs modifiables
-                    etFirstName.setText(firstName);
-                    etLastName.setText(lastName);
-                    etPhone.setText(phone);
-                    etCity.setText(city);
-                    binding.ivProfilePhoto.setText(firstName.substring(0,1).toUpperCase()+" "+lastName.substring(0,1).toUpperCase());
-                }
-            }).addOnFailureListener(e -> {
-                // Gestion des erreurs de récupération
-                Toast.makeText(getContext(), "Erreur lors de la récupération des informations", Toast.LENGTH_SHORT).show();
-            });
+            binding.etEmail.setText(user.getEmail()); // Email non modifiable
         }
     }
 
-    private void saveUserInfo() {
-        FirebaseUser user = auth.getCurrentUser();
-        if (user != null) {
-            // Récupérer les nouvelles informations des EditText
-            String firstName = etFirstName.getText().toString().trim();
-            String lastName = etLastName.getText().toString().trim();
-            String phone = etPhone.getText().toString().trim();
-            String city = etCity.getText().toString().trim();
+    private void observeViewModel() {
+        profileViewModel.getUserData().observe(getViewLifecycleOwner(), userData -> {
+            if (userData != null) {
+                binding.etFirstName.setText((String) userData.get("name"));
+                binding.etLastName.setText((String) userData.get("surname"));
+                binding.etPhone.setText((String) userData.get("phone"));
+                binding.etCity.setText((String) userData.get("city"));
 
-            // Créer une Map pour stocker les nouvelles valeurs
-            Map<String, Object> userInfo = new HashMap<>();
-            userInfo.put("name", firstName);
-            userInfo.put("surname", lastName);
-            userInfo.put("phone", phone);
-            userInfo.put("city", city);
+                String firstName = (String) userData.get("name");
+                String lastName = (String) userData.get("surname");
+                binding.ivProfilePhoto.setText(
+                        firstName.substring(0, 1).toUpperCase() + " " +
+                                lastName.substring(0, 1).toUpperCase()
+                );
+            }
+        });
 
-            // Mettre à jour Firestore avec les nouvelles informations
-            DocumentReference userRef = firestore.collection("users").document(user.getUid());
-            userRef.update(userInfo).addOnSuccessListener(aVoid -> {
-                Toast.makeText(getContext(), "Informations enregistrées avec succès", Toast.LENGTH_SHORT).show();
-            }).addOnFailureListener(e -> {
-                Toast.makeText(getContext(), "Erreur lors de l'enregistrement des informations", Toast.LENGTH_SHORT).show();
-            });
-        }
+        profileViewModel.getError().observe(getViewLifecycleOwner(), errorMessage -> {
+            if (errorMessage != null) {
+                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        profileViewModel.getSuccessMessage().observe(getViewLifecycleOwner(), successMessage -> {
+            if (successMessage != null) {
+                Toast.makeText(getContext(), successMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        profileViewModel.loadUserData(); // Recharger les données utilisateur
+    }
+
 
     @Override
     public void onDestroyView() {
