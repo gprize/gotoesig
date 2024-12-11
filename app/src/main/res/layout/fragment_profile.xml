@@ -1,22 +1,73 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.profile.ProfileFragment">
+    android:orientation="vertical"
+    android:padding="16dp">
 
+    <!-- ImageView pour afficher les initiales -->
     <TextView
-        android:id="@+id/text_home"
+        android:id="@+id/iv_profile_photo"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center"
+        android:background="@drawable/circle_shape"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:textSize="36sp"
+        android:contentDescription="Photo de profil" />
+
+    <!-- EditText pour le prénom -->
+    <EditText
+        android:id="@+id/etFirstName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:hint="Prénom"
+        android:textSize="16sp"
+        android:inputType="textPersonName"/>
+
+    <!-- EditText pour le nom -->
+    <EditText
+        android:id="@+id/etLastName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nom"
+        android:textSize="16sp"
+        android:inputType="textPersonName"/>
+
+    <!-- EditText pour le téléphone -->
+    <EditText
+        android:id="@+id/etPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Numéro de téléphone"
+        android:textSize="16sp"
+        android:inputType="phone"/>
+
+    <!-- EditText pour la ville -->
+    <EditText
+        android:id="@+id/etCity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Ville"
+        android:textSize="16sp"
+        android:inputType="text"/>
+
+    <!-- EditText pour l'email (en lecture seule) -->
+    <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:textSize="16sp"
+        android:inputType="textEmailAddress"
+        android:focusable="false"
+        android:clickable="false"/>
+
+    <!-- Button pour enregistrer les nouvelles informations -->
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enregistrer"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>
