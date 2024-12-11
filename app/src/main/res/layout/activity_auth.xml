@@ -1,56 +1,133 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/editTextName"
+    <!-- Titre de l'authentification -->
+    <TextView
+        android:id="@+id/tvAuthTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nom" />
+        android:text="Connexion"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:paddingBottom="16dp"/>
 
-    <EditText
-        android:id="@+id/editTextSurname"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Prénom" />
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:weightSum="2">
 
-    <EditText
-        android:id="@+id/editTextPhone"
-        android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btn_show_login"
+            android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Numéro de téléphone" />
+        android:text="Se connecter"
+        android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"/>
 
-    <EditText
-        android:id="@+id/editTextCity"
-        android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btn_show_register"
+            android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Ville" />
+        android:text="S'inscrire"
+        android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"/>
 
-    <EditText
-        android:id="@+id/editTextEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Email" />
+    </LinearLayout>
 
-    <EditText
-        android:id="@+id/editTextPassword"
+    <!-- Formulaire de connexion -->
+    <LinearLayout
+        android:id="@+id/layout_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Mot de passe"
-        android:inputType="textPassword" />
+        android:orientation="vertical"
+        android:visibility="visible">
 
-    <Button
-        android:id="@+id/buttonRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="S'inscrire" />
+        <EditText
+            android:id="@+id/et_login_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:inputType="textEmailAddress" />
 
-    <Button
-        android:id="@+id/buttonLogin"
+        <EditText
+            android:id="@+id/et_login_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mot de passe"
+            android:inputType="textPassword" />
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Se connecter"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"/>
+    </LinearLayout>
+
+    <!-- Formulaire d'inscription -->
+    <LinearLayout
+        android:id="@+id/layout_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Se connecter" />
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/et_register_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nom"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/et_register_surname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Prénom"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/et_register_city"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ville"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/et_register_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:id="@+id/et_register_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Téléphone"
+            android:inputType="phone" />
+
+        <EditText
+            android:id="@+id/et_register_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mot de passe"
+            android:inputType="textPassword" />
+
+        <Button
+            android:id="@+id/btn_register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="S'inscrire"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"/>
+    </LinearLayout>
 </LinearLayout>

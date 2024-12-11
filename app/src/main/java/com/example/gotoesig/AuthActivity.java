@@ -1,13 +1,16 @@
 package com.example.gotoesig;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,57 +21,109 @@ import java.util.Map;
 
 public class AuthActivity extends AppCompatActivity {
 
-    private FirebaseAuth mAuth;
+    private LinearLayout formLogin, formRegister;
+    private TextView tvAuthTitle;
+    private Button btnShowLogin, btnShowRegister, btnLogin, btnRegister;
+    private EditText etLoginEmail, etLoginPassword, etRegisterName, etRegisterSurname, etRegisterCity, etRegisterEmail, etRegisterPhone, etRegisterPassword;
+
+    private boolean isLoginFormVisible = true; // Par défaut, formulaire de connexion visible
+    private FirebaseAuth auth;
     private FirebaseFirestore db;
 
-    private EditText editTextName, editTextSurname, editTextPhone, editTextCity, editTextEmail, editTextPassword;
-    private Button buttonRegister, buttonLogin;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
-        // Initialisation Firebase
-        mAuth = FirebaseAuth.getInstance();
+        // Initialisation des vues
+        formLogin = findViewById(R.id.layout_login);
+        formRegister = findViewById(R.id.layout_register);
+        tvAuthTitle = findViewById(R.id.tvAuthTitle);
+        btnShowLogin = findViewById(R.id.btn_show_login);
+        btnShowRegister = findViewById(R.id.btn_show_register);
+        btnLogin = findViewById(R.id.btn_login);
+        btnRegister = findViewById(R.id.btn_register);
+        etLoginEmail = findViewById(R.id.et_login_email);
+        etLoginPassword = findViewById(R.id.et_login_password);
+        etRegisterName = findViewById(R.id.et_register_name);
+        etRegisterSurname = findViewById(R.id.et_register_surname);
+        etRegisterCity = findViewById(R.id.et_register_city);
+        etRegisterEmail = findViewById(R.id.et_register_email);
+        etRegisterPhone = findViewById(R.id.et_register_phone);
+        etRegisterPassword = findViewById(R.id.et_register_password);
+
+        //Initialisation Firebase
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Initialisation des vues
-        editTextName = findViewById(R.id.editTextName);
-        editTextSurname = findViewById(R.id.editTextSurname);
-        editTextPhone = findViewById(R.id.editTextPhone);
-        editTextCity = findViewById(R.id.editTextCity);
-        editTextEmail = findViewById(R.id.editTextEmail);
-        editTextPassword = findViewById(R.id.editTextPassword);
-        buttonRegister = findViewById(R.id.buttonRegister);
-        buttonLogin = findViewById(R.id.buttonLogin);
+        // Par défaut, afficher le formulaire de connexion
+        formLogin.setVisibility(View.VISIBLE);
+        formRegister.setVisibility(View.GONE);
+        tvAuthTitle.setText("Connexion");
+        btnShowRegister.setText("S'inscrire");
 
-        // Gestion des clics
-        buttonRegister.setOnClickListener(view -> registerUser());
-        buttonLogin.setOnClickListener(view -> loginUser());
+        // Action pour le bouton "Se connecter"
+        btnLogin.setOnClickListener(v -> loginUser());
+
+        // Action pour le bouton "S'inscrire"
+        btnRegister.setOnClickListener(v -> registerUser());
+
+        // Bascule entre les formulaires de connexion et d'inscription
+        btnShowLogin.setOnClickListener(v -> {
+            formLogin.setVisibility(View.VISIBLE);
+            formRegister.setVisibility(View.GONE);
+            tvAuthTitle.setText("Connexion");
+            btnShowRegister.setText("S'inscrire");
+        });
+
+        btnShowRegister.setOnClickListener(v -> {
+            formLogin.setVisibility(View.GONE);
+            formRegister.setVisibility(View.VISIBLE);
+            tvAuthTitle.setText("Inscription");
+            btnShowLogin.setText("Se connecter");
+        });
     }
 
-    private void registerUser() {
-        String name = editTextName.getText().toString().trim();
-        String surname = editTextSurname.getText().toString().trim();
-        String phone = editTextPhone.getText().toString().trim();
-        String city = editTextCity.getText().toString().trim();
-        String email = editTextEmail.getText().toString().trim();
-        String password = editTextPassword.getText().toString().trim();
+    private void loginUser() {
+        String email = etLoginEmail.getText().toString().trim();
+        String password = etLoginPassword.getText().toString().trim();
 
-        // Validation des champs
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(surname) || TextUtils.isEmpty(phone) ||
-                TextUtils.isEmpty(city) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Tous les champs sont obligatoires.", Toast.LENGTH_SHORT).show();
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Veuillez remplir tous les champs.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Création de l'utilisateur avec FirebaseAuth
-        mAuth.createUserWithEmailAndPassword(email, password)
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Rediriger vers l'activité principale
+                        Intent intent = new Intent(AuthActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(this, "Erreur : " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void registerUser() {
+        String name = etRegisterName.getText().toString().trim();
+        String surname = etRegisterSurname.getText().toString().trim();
+        String city = etRegisterCity.getText().toString().trim();
+        String email = etRegisterEmail.getText().toString().trim();
+        String phone = etRegisterPhone.getText().toString().trim();
+        String password = etRegisterPassword.getText().toString().trim();
+
+        if (name.isEmpty() || surname.isEmpty() || city.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Veuillez remplir tous les champs.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // Ajout des infos utilisateur dans Firestore
-                        String userId = mAuth.getCurrentUser().getUid();
+                        String userId = auth.getCurrentUser().getUid();
                         Map<String, Object> user = new HashMap<>();
                         user.put("name", name);
                         user.put("surname", surname);
@@ -80,6 +135,10 @@ public class AuthActivity extends AppCompatActivity {
                                 .set(user)
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(AuthActivity.this, "Utilisateur enregistré avec succès !", Toast.LENGTH_SHORT).show();
+                                    // Rediriger vers l'activité principale
+                                    Intent intent = new Intent(AuthActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.e("Firestore", "Erreur lors de l'enregistrement : " + e.getMessage());
@@ -88,29 +147,6 @@ public class AuthActivity extends AppCompatActivity {
                     } else {
                         Log.e("FirebaseAuth", "Erreur : " + task.getException().getMessage());
                         Toast.makeText(this, "Erreur : " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void loginUser() {
-        String email = editTextEmail.getText().toString().trim();
-        String password = editTextPassword.getText().toString().trim();
-
-        // Validation des champs
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Email et mot de passe requis.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Connexion utilisateur avec FirebaseAuth
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
-                        // Ici, vous pouvez récupérer les données utilisateur depuis Firestore si nécessaire.
-                    } else {
-                        Log.e("FirebaseAuth", "Erreur : " + task.getException().getMessage());
-                        Toast.makeText(this, "Erreur de connexion : " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
