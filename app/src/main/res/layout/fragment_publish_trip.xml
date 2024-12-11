@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/text_publish_trip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Publish a trip"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:id="@+id/edit_publish_origin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter origin"
+        android:layout_below="@id/text_publish_trip"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/edit_publish_destination"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter destination"
+        android:layout_below="@id/edit_publish_origin"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/button_publish_trip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Publish"
+        android:layout_below="@id/edit_publish_destination"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
