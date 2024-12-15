@@ -1,41 +1,89 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/text_publish_trip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Publish a trip"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_centerHorizontal="true" />
-
-    <EditText
-        android:id="@+id/edit_publish_origin"
+    <Spinner
+        android:id="@+id/transportSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter origin"
-        android:layout_below="@id/text_publish_trip"
-        android:layout_marginTop="16dp" />
+        android:prompt="@string/choose_transport" />
 
-    <EditText
-        android:id="@+id/edit_publish_destination"
+    <FrameLayout
+        android:id="@+id/autocomplete_startPoint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter destination"
-        android:layout_below="@id/edit_publish_origin"
-        android:layout_marginTop="16dp" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_pickTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Heure" />
+
+        <EditText
+            android:id="@+id/time_picker"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="Heure"
+            android:focusable="false"
+            android:clickable="true" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_pickDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Date" />
+
+        <EditText
+            android:id="@+id/date_picker"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="Date"
+            android:focusable="false"
+            android:clickable="true" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/delayTolerance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Retard toléré (min)"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/availableSeats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Places disponibles"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/contribution"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Contribution (€)"
+        android:inputType="numberDecimal"
+        android:visibility="gone" />
 
     <Button
-        android:id="@+id/button_publish_trip"
-        android:layout_width="wrap_content"
+        android:id="@+id/btn_saveTrip"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Publish"
-        android:layout_below="@id/edit_publish_destination"
-        android:layout_marginTop="16dp"
-        android:layout_centerHorizontal="true" />
-
-</RelativeLayout>
+        android:text="Ajouter" />
+</LinearLayout>
