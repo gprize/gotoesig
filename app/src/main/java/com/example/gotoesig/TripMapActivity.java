@@ -71,12 +71,10 @@ public class TripMapActivity extends AppCompatActivity implements OnMapReadyCall
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             try {
-                // Créer l'URL et effectuer la connexion
                 URL url = new URL(params[0]);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.connect();
 
-                // Lire la réponse
                 reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                 StringBuilder stringBuilder = new StringBuilder();
                 String line;
@@ -104,7 +102,6 @@ public class TripMapActivity extends AppCompatActivity implements OnMapReadyCall
         @Override
         protected void onPostExecute(String result) {
             try {
-                // Parser de la réponse JSON
                 JSONObject jsonObject = new JSONObject(result);
                 JSONArray routes = jsonObject.getJSONArray("routes");
 
@@ -113,7 +110,6 @@ public class TripMapActivity extends AppCompatActivity implements OnMapReadyCall
                     JSONArray legs = route.getJSONArray("legs");
                     JSONObject leg = legs.getJSONObject(0);
 
-                    // Récupérer l'itinéraire
                     JSONArray steps = leg.getJSONArray("steps");
                     ArrayList<LatLng> points = new ArrayList<>();
 
@@ -123,14 +119,12 @@ public class TripMapActivity extends AppCompatActivity implements OnMapReadyCall
                         points.addAll(decodePoly(polyline));
                     }
 
-                    // Ajouter la polyline sur la carte
                     PolylineOptions polylineOptions = new PolylineOptions()
                             .addAll(points)
                             .color(Color.BLUE)
                             .width(10);
                     mMap.addPolyline(polylineOptions);
 
-                    // Centrer la carte sur le point de départ
                     JSONObject startLocation = leg.getJSONObject("start_location");
                     LatLng startLatLng = new LatLng(startLocation.getDouble("lat"), startLocation.getDouble("lng"));
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 12));
@@ -141,7 +135,6 @@ public class TripMapActivity extends AppCompatActivity implements OnMapReadyCall
         }
     }
 
-    // Méthode pour décoder la polyline en une liste de LatLng
     private ArrayList<LatLng> decodePoly(String encoded) {
         ArrayList<LatLng> poly = new ArrayList<>();
         int index = 0, len = encoded.length();

@@ -199,19 +199,16 @@ public class AddTripFragment extends Fragment {
                     .apiKey("AIzaSyCH58MZE4ZXK2XKdXIn90wOq3aHERn0GOI")
                     .build();
 
-            // Appeler l'API Distance Matrix
             DistanceMatrixApiRequest request = DistanceMatrixApi.newRequest(context);
             DistanceMatrix response = request.origins(new com.google.maps.model.LatLng(startLatitude, startLongitude))
                     .destinations(destination)
                     .await();
 
-            // Vérifier que la réponse contient des lignes
             if (response.rows != null && response.rows.length > 0) {
-                DistanceMatrixRow row = response.rows[0]; // Première ligne
+                DistanceMatrixRow row = response.rows[0];
 
-                // Vérifier que la ligne contient des éléments
                 if (row.elements != null && row.elements.length > 0) {
-                    DistanceMatrixElement element = row.elements[0]; // Premier élément
+                    DistanceMatrixElement element = row.elements[0];
                     showConfirmationDialog(element.distance.humanReadable, element.duration.humanReadable);
                 } else {
                     Toast.makeText(getContext(), "Aucun élément trouvé dans la ligne.", Toast.LENGTH_SHORT).show();
@@ -274,16 +271,12 @@ public class AddTripFragment extends Fragment {
                     .apiKey("AIzaSyCH58MZE4ZXK2XKdXIn90wOq3aHERn0GOI")
                     .build();
 
-            // Créez un objet LatLng avec les coordonnées
             com.google.maps.model.LatLng location = new com.google.maps.model.LatLng(latitude, longitude);
 
-            // Utilisez l'API Geocoding pour obtenir l'adresse complète
             com.google.maps.model.GeocodingResult[] results =
                     com.google.maps.GeocodingApi.reverseGeocode(geoApiContext, location).await();
 
-            // Vérifier si des résultats sont trouvés
             if (results != null && results.length > 0) {
-                // Utiliser le premier résultat (ou parcourir le tableau si nécessaire)
                 String fullAddress = results[0].formattedAddress;
                 startPoint = fullAddress;
             }

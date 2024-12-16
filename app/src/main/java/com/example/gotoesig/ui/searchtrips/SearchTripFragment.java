@@ -61,7 +61,6 @@ public class SearchTripFragment extends Fragment {
         rvTrips.setLayoutManager(new LinearLayoutManager(getContext()));
 
         tripAdapter = new TripAdapter(trip -> {
-            // Lorsque l'utilisateur clique sur un trajet
             Intent intent = new Intent(getContext(), TripMapActivity.class);
             intent.putExtra("startPoint", trip.getStartPoint());
             intent.putExtra("endPoint", trip.getEndPoint());
