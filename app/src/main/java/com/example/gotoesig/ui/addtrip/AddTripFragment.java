@@ -226,9 +226,9 @@ public class AddTripFragment extends Fragment {
 
 
     private void saveTripToFirestore(String distance, String duration) {
-        String contribution = contributionEditText.getVisibility() == View.VISIBLE
-                ? contributionEditText.getText().toString()
-                : "0";
+        double contribution = contributionEditText.getVisibility() == View.VISIBLE
+                ? Double.parseDouble(contributionEditText.getText().toString())
+                : 0.0;
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         Map<String, Object> trip = new HashMap<>();
