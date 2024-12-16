@@ -110,6 +110,9 @@ public class AddTripFragment extends Fragment {
                             startLatitude = startLatLng.latitude;
                             startLongitude = startLatLng.longitude;
                             // Utiliser ces coordonnées pour appeler l'API Distance Matrix
+
+                            // Appeler la méthode pour obtenir l'adresse complète
+                            getCompleteAddress(startLatitude, startLongitude);
                         }
 
                     }
@@ -266,6 +269,34 @@ public class AddTripFragment extends Fragment {
 
         builder.show();
     }
+
+    private void getCompleteAddress(double latitude, double longitude) {
+        try {
+            GeoApiContext geoApiContext = new GeoApiContext.Builder()
+                    .apiKey("AIzaSyCH58MZE4ZXK2XKdXIn90wOq3aHERn0GOI") // Utiliser votre clé API ici
+                    .build();
+
+            // Créez un objet LatLng avec les coordonnées
+            com.google.maps.model.LatLng location = new com.google.maps.model.LatLng(latitude, longitude);
+
+            // Utilisez l'API Geocoding pour obtenir l'adresse complète
+            com.google.maps.model.GeocodingResult[] results =
+                    com.google.maps.GeocodingApi.reverseGeocode(geoApiContext, location).await();
+
+            // Vérifier si des résultats sont trouvés
+            if (results != null && results.length > 0) {
+                // Utiliser le premier résultat (ou parcourir le tableau si nécessaire)
+                String fullAddress = results[0].formattedAddress;
+                startPoint = fullAddress;  // Mise à jour du point de départ avec l'adresse complète
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Erreur lors de la récupération de l'adresse complète", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
 }
 
