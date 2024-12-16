@@ -1,89 +1,107 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <Spinner
-        android:id="@+id/transportSpinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:prompt="@string/choose_transport" />
-
-    <FrameLayout
-        android:id="@+id/autocomplete_startPoint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    android:padding="16dp"
+    android:background="@android:color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-        <Button
-            android:id="@+id/btn_pickTime"
-            android:layout_width="0dp"
+        <!-- Autocomplete for Start Point -->
+        <fragment
+            android:id="@+id/startPointAutocomplete"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Heure" />
+            android:layout_marginBottom="16dp"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment" />
+
+        <!-- Time Picker -->
+        <EditText
+            android:id="@+id/timePickerEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Heure de départ"
+            android:focusable="false"
+            android:inputType="none"
+            android:drawableStart="@android:drawable/ic_menu_recent_history"
+            android:padding="12dp"
+            android:background="@android:drawable/editbox_background"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Date Picker -->
+        <EditText
+            android:id="@+id/datePickerEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date de départ"
+            android:focusable="false"
+            android:inputType="none"
+            android:drawableStart="@android:drawable/ic_menu_my_calendar"
+            android:padding="12dp"
+            android:background="@android:drawable/editbox_background"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Delay Tolerance -->
+        <EditText
+            android:id="@+id/delayToleranceEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tolérance de retard (minutes)"
+            android:inputType="number"
+            android:padding="12dp"
+            android:background="@android:drawable/editbox_background"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Available Seats -->
+        <EditText
+            android:id="@+id/availableSeatsEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Places disponibles"
+            android:inputType="number"
+            android:padding="12dp"
+            android:background="@android:drawable/editbox_background"
+            android:layout_marginBottom="16dp" />
 
         <EditText
-            android:id="@+id/time_picker"
-            android:layout_width="0dp"
+            android:id="@+id/contribution"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:hint="Heure"
-            android:focusable="false"
-            android:clickable="true" />
-    </LinearLayout>
+            android:hint="Contribution (€)"
+            android:inputType="numberDecimal"
+            android:visibility="gone" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
 
+
+        <!-- Transport Mode Spinner -->
+        <Spinner
+            android:id="@+id/transportModeSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:spinnerMode="dropdown" />
+
+        <!-- Add Trip Button -->
         <Button
-            android:id="@+id/btn_pickDate"
-            android:layout_width="0dp"
+            android:id="@+id/addTripButton"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Date" />
+            android:backgroundTint="@color/purple_500"
+            android:text="Ajouter un trajet"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp" />
 
-        <EditText
-            android:id="@+id/date_picker"
-            android:layout_width="0dp"
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:hint="Date"
-            android:focusable="false"
-            android:clickable="true" />
+            android:visibility="gone" />
     </LinearLayout>
-
-    <EditText
-        android:id="@+id/delayTolerance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Retard toléré (min)"
-        android:inputType="number" />
-
-    <EditText
-        android:id="@+id/availableSeats"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Places disponibles"
-        android:inputType="number" />
-
-    <EditText
-        android:id="@+id/contribution"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Contribution (€)"
-        android:inputType="numberDecimal"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/btn_saveTrip"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ajouter" />
-</LinearLayout>
+</ScrollView>

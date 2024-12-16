@@ -51,6 +51,10 @@ dependencies {
     implementation (libs.squareup.retrofit)
     implementation (libs.converter.gson)
     implementation (libs.places)
+    implementation (libs.google.google.maps.services)
+    implementation (libs.squareup.retrofit)
+    implementation (libs.converter.gson)
+
     annotationProcessor (libs.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

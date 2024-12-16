@@ -1,6 +1,7 @@
 [versions]
 agp = "8.7.2"
 glideVersion = "4.15.1"
+googleGoogleMapsServices = "2.2.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -23,6 +24,7 @@ compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "squareupRetrofit" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebase-auth" }
 github-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
+google-google-maps-services = { module = "com.google.maps:google-maps-services", version.ref = "googleGoogleMapsServices" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

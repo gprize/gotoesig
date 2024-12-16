@@ -1,10 +1,8 @@
 package com.example.gotoesig.ui.addtrip;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
-
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,14 +11,21 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TimePicker;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.example.gotoesig.R;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
@@ -28,73 +33,116 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.maps.DistanceMatrixApi;
+import com.google.maps.DistanceMatrixApiRequest;
+import com.google.maps.GeoApiContext;
+import com.google.maps.model.DistanceMatrix;
+import com.google.maps.model.DistanceMatrixElement;
+import com.google.maps.model.DistanceMatrixRow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AddTripFragment extends DialogFragment
-        implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class AddTripFragment extends Fragment {
 
-    private Spinner transportSpinner;
+    private EditText timePickerEditText, datePickerEditText, delayToleranceEditText, availableSeatsEditText;
+    private Spinner transportModeSpinner;
+    private Button addTripButton;
+    private String startPoint;
+    private final String endPoint = "ESIGELEC, Rouen, France"; // Point d'arrivée fixe
+    private FirebaseFirestore db;
+    private ProgressBar progressBar;
     private EditText contributionEditText;
-    private EditText timePickerEditText;
-    private EditText datePickerEditText;
-    private EditText delayToleranceEditText;
-    private EditText availableSeatsEditText;
+    private double startLatitude;
+    private double startLongitude;
 
-    private String selectedDate = "";
-    private String selectedTime = "";
-    private String startPoint = "";
-
-    private final String apikey = "AIzaSyCH58MZE4ZXK2XKdXIn90wOq3aHERn0GOI";
-
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_publish_trip, container, false);
 
-        if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), apikey);
-        }
+        db = FirebaseFirestore.getInstance();
+        transportModeSpinner = view.findViewById(R.id.transportModeSpinner);
+        timePickerEditText = view.findViewById(R.id.timePickerEditText);
+        datePickerEditText = view.findViewById(R.id.datePickerEditText);
+        delayToleranceEditText = view.findViewById(R.id.delayToleranceEditText);
+        availableSeatsEditText = view.findViewById(R.id.availableSeatsEditText);
+        addTripButton = view.findViewById(R.id.addTripButton);
+        progressBar = view.findViewById(R.id.progressBar);
+        contributionEditText = view.findViewById(R.id.contribution);
 
         setupAutocomplete(view);
-
-        transportSpinner = view.findViewById(R.id.transportSpinner);
-        contributionEditText = view.findViewById(R.id.contribution);
-        timePickerEditText = view.findViewById(R.id.time_picker);
-        datePickerEditText = view.findViewById(R.id.date_picker);
-        delayToleranceEditText = view.findViewById(R.id.delayTolerance);
-        availableSeatsEditText = view.findViewById(R.id.availableSeats);
-
+        setupDateTimePickers();
         setupTransportSpinner();
-        setupDateAndTimePickers(view);
-        setupSaveButton(view);
+
+        addTripButton.setOnClickListener(v -> {
+            if (isInputValid()) {
+                callDistanceMatrixAPI(startLatitude, startLongitude, endPoint);
+            }
+        });
 
         return view;
     }
 
     private void setupAutocomplete(View view) {
-        // Ajout programmatique du fragment AutocompleteSupportFragment
-        AutocompleteSupportFragment startPointFragment = new AutocompleteSupportFragment();
-        getChildFragmentManager().beginTransaction()
-                .replace(R.id.autocomplete_startPoint, startPointFragment)
-                .commit();
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+            return;
+        }
 
-        startPointFragment.setPlaceFields(List.of(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG));
-        startPointFragment.setHint("Point de départ");
-        startPointFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(@NonNull Place place) {
-                startPoint = place.getName();
-                Log.d("AddTripFragment", "Point de départ sélectionné : " + place.getName());
-            }
+        Places.initialize(getContext(), "AIzaSyCH58MZE4ZXK2XKdXIn90wOq3aHERn0GOI");
+        AutocompleteSupportFragment autocompleteStart =
+                (AutocompleteSupportFragment) getChildFragmentManager().findFragmentById(R.id.startPointAutocomplete);
 
-            @Override
-            public void onError(@NonNull Status status) {
-                Log.e("AddTripFragment", "Erreur avec le point de départ : " + status.getStatusMessage());
-            }
+        autocompleteStart.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG))
+                .setOnPlaceSelectedListener(new PlaceSelectionListener() {
+                    @Override
+                    public void onPlaceSelected(@NonNull Place place) {
+                        startPoint = place.getName();
+                        LatLng startLatLng = place.getLatLng();  // récupère la latitude et la longitude
+                        if (startLatLng != null) {
+                            startLatitude = startLatLng.latitude;
+                            startLongitude = startLatLng.longitude;
+                            // Utiliser ces coordonnées pour appeler l'API Distance Matrix
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(@NonNull Status status) {
+                        Toast.makeText(getContext(), "Erreur: " + status.getStatusMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void setupDateTimePickers() {
+        timePickerEditText.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
+
+            TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+                    (view, hourOfDay, minuteOfHour) -> timePickerEditText.setText(String.format("%02d:%02d", hourOfDay, minuteOfHour)),
+                    hour, minute, true);
+            timePickerDialog.show();
+        });
+
+        datePickerEditText.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                    (view, year1, month1, dayOfMonth) -> datePickerEditText.setText(String.format("%04d-%02d-%02d", year1, month1 + 1, dayOfMonth)),
+                    year, month, day);
+            datePickerDialog.show();
         });
     }
 
@@ -109,13 +157,13 @@ public class AddTripFragment extends DialogFragment
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                         android.R.layout.simple_spinner_item, transportModes);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                transportSpinner.setAdapter(adapter);
+                transportModeSpinner.setAdapter(adapter);
             } else {
                 Log.w("Firestore", "Error getting transport modes.", task.getException());
             }
         });
 
-        transportSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        transportModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedTransport = parent.getItemAtPosition(position).toString();
@@ -131,75 +179,93 @@ public class AddTripFragment extends DialogFragment
         });
     }
 
-    private void setupDateAndTimePickers(View view) {
-        Button btnDatePicker = view.findViewById(R.id.btn_pickDate);
-        btnDatePicker.setOnClickListener(v -> {
-            Calendar c = Calendar.getInstance();
-            new DatePickerDialog(requireContext(), this,
-                    c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
-        });
-
-        Button btnTimePicker = view.findViewById(R.id.btn_pickTime);
-        btnTimePicker.setOnClickListener(v -> {
-            Calendar c = Calendar.getInstance();
-            new TimePickerDialog(requireContext(), this,
-                    c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show();
-        });
-    }
-
-    private void setupSaveButton(View view) {
-        Button btnSaveTrip = view.findViewById(R.id.btn_saveTrip);
-        btnSaveTrip.setOnClickListener(v -> saveTripToFirestore());
-    }
-
-    @Override
-    public void onDateSet(DatePicker view, int year, int month, int day) {
-        selectedDate = day + "/" + (month + 1) + "/" + year;
-        datePickerEditText.setText(selectedDate);
-    }
-
-    @Override
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        selectedTime = String.format("%02d:%02d", hourOfDay, minute);
-        timePickerEditText.setText(selectedTime);
-    }
-
-    private void saveTripToFirestore() {
-        String userId = FirebaseAuth.getInstance().getUid();
-        if (userId == null) {
-            Toast.makeText(getContext(), "Utilisateur non authentifié", Toast.LENGTH_SHORT).show();
-            return;
+    private boolean isInputValid() {
+        if (startPoint == null || startPoint.isEmpty()) {
+            Toast.makeText(getContext(), "Veuillez renseigner un point de départ", Toast.LENGTH_SHORT).show();
+            return false;
         }
+        if (timePickerEditText.getText().toString().isEmpty() || datePickerEditText.getText().toString().isEmpty() ||
+                delayToleranceEditText.getText().toString().isEmpty() || availableSeatsEditText.getText().toString().isEmpty()) {
+            Toast.makeText(getContext(), "Tous les champs sont obligatoires", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
 
-        String transportMode = transportSpinner.getSelectedItem().toString();
-        String time = timePickerEditText.getText().toString();
-        String date = datePickerEditText.getText().toString();
-        String delayTolerance = delayToleranceEditText.getText().toString();
-        String availableSeats = availableSeatsEditText.getText().toString();
+    public void callDistanceMatrixAPI(double startLatitude, double startLongitude, String destination) {
+        try {
+            GeoApiContext context = new GeoApiContext.Builder()
+                    .apiKey("AIzaSyCH58MZE4ZXK2XKdXIn90wOq3aHERn0GOI")
+                    .build();
+
+            // Appeler l'API Distance Matrix
+            DistanceMatrixApiRequest request = DistanceMatrixApi.newRequest(context);
+            DistanceMatrix response = request.origins(new com.google.maps.model.LatLng(startLatitude, startLongitude))
+                    .destinations(destination)
+                    .await();
+
+            // Vérifier que la réponse contient des lignes
+            if (response.rows != null && response.rows.length > 0) {
+                DistanceMatrixRow row = response.rows[0]; // Première ligne
+
+                // Vérifier que la ligne contient des éléments
+                if (row.elements != null && row.elements.length > 0) {
+                    DistanceMatrixElement element = row.elements[0]; // Premier élément
+                    showConfirmationDialog(element.distance.humanReadable, element.duration.humanReadable);
+                } else {
+                    Toast.makeText(getContext(), "Aucun élément trouvé dans la ligne.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), "Aucune ligne trouvée dans la réponse.", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Erreur lors de l'appel à l'API Distance Matrix ", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+
+    private void saveTripToFirestore(String distance, String duration) {
         String contribution = contributionEditText.getVisibility() == View.VISIBLE
                 ? contributionEditText.getText().toString()
                 : "0";
-
-        if (startPoint.isEmpty() || time.isEmpty() || date.isEmpty() || delayTolerance.isEmpty() || availableSeats.isEmpty()) {
-            Toast.makeText(getContext(), "Tous les champs sont obligatoires", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         Map<String, Object> trip = new HashMap<>();
-        trip.put("userId", userId);
-        trip.put("transportMode", transportMode);
         trip.put("startPoint", startPoint);
-        trip.put("time", time);
-        trip.put("date", date);
-        trip.put("delayTolerance", Integer.parseInt(delayTolerance));
-        trip.put("availableSeats", Integer.parseInt(availableSeats));
-        trip.put("contribution", Float.parseFloat(contribution));
+        trip.put("endPoint", endPoint);
+        trip.put("distance", distance);
+        trip.put("duration", duration);
+        trip.put("time", timePickerEditText.getText().toString());
+        trip.put("date", datePickerEditText.getText().toString());
+        trip.put("tolerance", delayToleranceEditText.getText().toString());
+        trip.put("seats", availableSeatsEditText.getText().toString());
+        trip.put("mode", transportModeSpinner.getSelectedItem().toString());
+        trip.put("contribution", contribution);
+        trip.put("userId", userId);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("trips").add(trip).addOnSuccessListener(documentReference -> {
+        db.collection("trips").add(trip).addOnSuccessListener(docRef -> {
             Toast.makeText(getContext(), "Trajet ajouté avec succès", Toast.LENGTH_SHORT).show();
         }).addOnFailureListener(e -> {
             Toast.makeText(getContext(), "Erreur lors de l'ajout du trajet", Toast.LENGTH_SHORT).show();
         });
     }
+
+    private void showConfirmationDialog(String distance, String duration) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Confirmer le trajet");
+        builder.setMessage("Distance : " + distance + "\nDurée : " + duration + "\nConfirmer l'ajout ?");
+
+        builder.setPositiveButton("Confirmer", (dialog, which) -> {
+            saveTripToFirestore(distance, duration); // Enregistrer le trajet dans la base
+        });
+
+        builder.setNegativeButton("Annuler", (dialog, which) -> {
+            dialog.dismiss(); // Fermer le dialogue
+        });
+
+        builder.show();
+    }
+
 }
+
