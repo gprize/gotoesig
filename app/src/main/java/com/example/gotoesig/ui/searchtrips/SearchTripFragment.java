@@ -16,7 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -137,13 +136,10 @@ public class SearchTripFragment extends Fragment {
                     @Override
                     public void onPlaceSelected(@NonNull Place place) {
                         startPoint = place.getName();
-                        LatLng startLatLng = place.getLatLng();  // récupère la latitude et la longitude
+                        LatLng startLatLng = place.getLatLng();
                         if (startLatLng != null) {
                             startLatitude = startLatLng.latitude;
                             startLongitude = startLatLng.longitude;
-                            // Utiliser ces coordonnées pour appeler l'API Distance Matrix
-
-                            // Appeler la méthode pour obtenir l'adresse complète
                             getCompleteAddress(startLatitude, startLongitude);
                         }
 
@@ -159,21 +155,17 @@ public class SearchTripFragment extends Fragment {
     private void getCompleteAddress(double latitude, double longitude) {
         try {
             GeoApiContext geoApiContext = new GeoApiContext.Builder()
-                    .apiKey("AIzaSyCH58MZE4ZXK2XKdXIn90wOq3aHERn0GOI") // Utiliser votre clé API ici
+                    .apiKey("AIzaSyCH58MZE4ZXK2XKdXIn90wOq3aHERn0GOI")
                     .build();
 
-            // Créez un objet LatLng avec les coordonnées
             com.google.maps.model.LatLng location = new com.google.maps.model.LatLng(latitude, longitude);
 
-            // Utilisez l'API Geocoding pour obtenir l'adresse complète
             com.google.maps.model.GeocodingResult[] results =
                     com.google.maps.GeocodingApi.reverseGeocode(geoApiContext, location).await();
 
-            // Vérifier si des résultats sont trouvés
             if (results != null && results.length > 0) {
-                // Utiliser le premier résultat (ou parcourir le tableau si nécessaire)
                 String fullAddress = results[0].formattedAddress;
-                startPoint = fullAddress;  // Mise à jour du point de départ avec l'adresse complète
+                startPoint = fullAddress;
             }
 
         } catch (Exception e) {

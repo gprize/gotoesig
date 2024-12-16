@@ -1,6 +1,5 @@
 package com.example.gotoesig.ui.searchtrips;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.gotoesig.R;
 import com.example.gotoesig.model.Booking;
 import com.example.gotoesig.model.Trip;
-
-import java.util.ArrayList;
-import java.util.List;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder> {
     private List<Trip> trips = new ArrayList<>();
@@ -48,12 +47,12 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
         holder.timeTextView.setText("Heure : " + trip.getTime());
         holder.modeTextView.setText("Mode : " + trip.getMode());
 
+        //s'inscrire sur le trajet
         holder.btnRegister.setOnClickListener(v -> {
-            // Inscrire l'utilisateur sur ce trajet
             registerUserForTrip(trip,holder);
         });
 
-        // Gestion du clic
+        // afficher la map
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onTripClick(trip);

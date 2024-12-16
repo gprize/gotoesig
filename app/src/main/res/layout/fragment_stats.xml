@@ -5,22 +5,33 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Ajout du PieChart -->
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/pie_chart"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="16dp"
+        android:paddingBottom="10dp"/>
+
     <TextView
         android:id="@+id/tv_trips_count_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:text="Nombre de trajets proposés"
         android:textSize="16sp"
-        android:layout_marginBottom="8dp" />
+        android:visibility="gone"
+        />
 
     <TextView
         android:id="@+id/tv_trips_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:text="0"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/tv_total_amount_label"
@@ -28,7 +39,8 @@
         android:layout_height="wrap_content"
         android:text="Montant total encaissé"
         android:textSize="16sp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:paddingTop="10dp"/>
 
     <TextView
         android:id="@+id/tv_total_amount"
@@ -39,10 +51,5 @@
         android:textStyle="bold"
         android:layout_marginBottom="16dp" />
 
-    <!-- Ajout du PieChart -->
-    <com.github.mikephil.charting.charts.PieChart
-        android:id="@+id/pie_chart"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginTop="16dp" />
+
 </LinearLayout>

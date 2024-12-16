@@ -13,7 +13,6 @@ public class Trip {
     private double contribution; // Double pour éviter les problèmes de désérialisation
     private String userId;
 
-    // Constructeur vide requis pour Firestore
     public Trip() {}
 
     public Trip(String startPoint, String endPoint, String distance, String duration, String time, String date,
@@ -31,7 +30,6 @@ public class Trip {
         this.userId = userId;
     }
 
-    // Getters et Setters
     public String getStartPoint() {
         return startPoint;
     }

@@ -23,7 +23,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-// Utilisation de AsyncTask pour récupérer les données de l'API Directions
 import android.os.AsyncTask;
 
 public class TripMapActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -37,12 +36,10 @@ public class TripMapActivity extends AppCompatActivity implements OnMapReadyCall
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip_map);
 
-        // Récupérer les données passées par l'intent
         startPoint = getIntent().getStringExtra("startPoint");
         endPoint = getIntent().getStringExtra("endPoint");
         mode = getIntent().getStringExtra("mode");
 
-        // Initialiser la carte
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);

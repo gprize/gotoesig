@@ -1,20 +1,17 @@
 package com.example.gotoesig.ui.mytrips;
 
-import androidx.lifecycle.ViewModelProvider;
-
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,7 +40,6 @@ public class MyTripsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_trips, container, false);
 
-        // Initialisation des éléments de l'interface utilisateur
         recyclerView = view.findViewById(R.id.recycler_my_trips);
         emptyMessageTextView = view.findViewById(R.id.tv_empty_message);
 
@@ -73,7 +69,6 @@ public class MyTripsFragment extends Fragment {
             return;
         }
 
-        // Requête pour récupérer les trajets où l'utilisateur est participant
         firestore.collection("bookings")
                 .whereArrayContains("userIds", userId)
                 .get()
@@ -92,7 +87,6 @@ public class MyTripsFragment extends Fragment {
                             Toast.makeText(getContext(), "problème de sdk", Toast.LENGTH_SHORT).show();
                         }
 
-                        // Récupérer les détails des trajets
                         fetchTripsDetails(tripIds);
                     }
                 })
