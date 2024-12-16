@@ -56,7 +56,7 @@ dependencies {
     implementation (libs.play.services.location)
     implementation (libs.squareup.retrofit)
     implementation (libs.converter.gson)
-
+    implementation (libs.mpandroidchart)
     annotationProcessor (libs.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
