@@ -10,52 +10,67 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.gotoesig.R;
 import com.example.gotoesig.model.Trip;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder> {
+    private List<Trip> trips = new ArrayList<>();
+    private OnTripClickListener listener;
 
-    private List<Trip> trips;
-
-    public TripAdapter(List<Trip> trips) {
-        this.trips = trips;
+    public interface OnTripClickListener {
+        void onTripClick(Trip trip);
     }
 
-    public void updateTrips(List<Trip> newTrips) {
-        trips = newTrips;
-        notifyDataSetChanged();
+    public TripAdapter(OnTripClickListener listener) {
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public TripViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_trip, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_trip, parent, false);
         return new TripViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull TripViewHolder holder, int position) {
         Trip trip = trips.get(position);
-        holder.tvStartPoint.setText("Départ : " + trip.getStartPoint());
-        holder.tvDate.setText("Date : " + trip.getDate());
-        holder.tvTime.setText("Heure : " + trip.getTime());
-        holder.tvMode.setText("Mode de transport : " + trip.getMode());
+        holder.startPointTextView.setText("Départ : " + trip.getStartPoint());
+        holder.dateTextView.setText("Date : " + trip.getDate());
+        holder.timeTextView.setText("Heure : " + trip.getTime());
+        holder.modeTextView.setText("Mode : " + trip.getMode());
+
+        // Gestion du clic
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onTripClick(trip);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return trips != null ? trips.size() : 0;
+        return trips.size();
     }
 
-    public static class TripViewHolder extends RecyclerView.ViewHolder {
-        TextView tvStartPoint, tvDate, tvTime, tvMode;
+    public void updateTrips(List<Trip> trips) {
+        this.trips = trips;
+        notifyDataSetChanged();
+    }
+
+    static class TripViewHolder extends RecyclerView.ViewHolder {
+        TextView startPointTextView;
+        TextView dateTextView;
+        TextView timeTextView;
+        TextView modeTextView;
 
         public TripViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvStartPoint = itemView.findViewById(R.id.tv_start_point);
-            tvDate = itemView.findViewById(R.id.tv_date);
-            tvTime = itemView.findViewById(R.id.tv_time);
-            tvMode = itemView.findViewById(R.id.tv_mode);
+            startPointTextView = itemView.findViewById(R.id.tv_start_point);
+            dateTextView = itemView.findViewById(R.id.tv_date);
+            timeTextView = itemView.findViewById(R.id.tv_time);
+            modeTextView = itemView.findViewById(R.id.tv_mode);
         }
     }
 }
+

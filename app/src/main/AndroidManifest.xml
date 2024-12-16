@@ -34,6 +34,9 @@
             android:theme="@style/Theme.Gotoesig.NoActionBar">
         </activity>
 
+        <!-- Déclaration de l'activité TripMapActivity -->
+        <activity android:name=".TripMapActivity" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCH58MZE4ZXK2XKdXIn90wOq3aHERn0GOI" />

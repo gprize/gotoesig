@@ -52,6 +52,8 @@ dependencies {
     implementation (libs.converter.gson)
     implementation (libs.places)
     implementation (libs.google.google.maps.services)
+    implementation (libs.play.services.maps)
+    implementation (libs.play.services.location)
     implementation (libs.squareup.retrofit)
     implementation (libs.converter.gson)
 
